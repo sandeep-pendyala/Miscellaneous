@@ -1,8 +1,13 @@
 package com.miscellaneous;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,23 +24,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
- 
+
 import java.util.Collections; 
 import java.util.List;
+import java.util.Map;
 
- 
+
 public class Test {
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
 			//	File inputFile = new File("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\Schema\\AcknowledgeSalesOrder_2.4.xsd");
 			File inputFile = new File("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\New folder\\Schema\\AcknowledgeSalesOrder_4.2_PSF.xsd");
+			File fileToBeModified  = new File("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\New folder\\Schema\\AcknowledgeSalesOrder_4.2_PSF_openapplications.org_oagis.xsd");
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(inputFile);
 			doc.getDocumentElement().normalize();
 			HashMap<String, String> codenames = new HashMap<String, String>();
+			HashMap<String, String> updateString = new HashMap<String, String>();
 			////Get XPath expression
 			XPathFactory xpathfactory = XPathFactory.newInstance();
 			XPath xpath = xpathfactory.newXPath();
@@ -95,8 +104,71 @@ public class Test {
 					System.out.println(mapping.getKey() + " ==================> " + mapping.getValue()); 
 
 				}
+				String out = " ";
+				String updatevalue ="";
+				String updatekey ="";
+				FileWriter writer = null;
+				int x = 0 ;
+				//one
+				for(java.util.Map.Entry<String, String> mapping : entrySetSortedByValue)
+				{
+					
+			 
+					 
+					if (!out.equals(mapping.getValue())) 
+					{
+						if (x != 0) {
+							updateString.put(updatekey, updatevalue);
+							updatekey = "";
+//							System.out.println("\n reached");
+						}
+						else {
+							
+							
+						}
+						
+						  out = mapping.getValue(); 
+						updatevalue = new String( " <xs:element ref=\""+ out +"\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>");
+						System.out.println(out);
+					 
+						
+					
+					}
+					System.out.println(mapping.getKey());
+					updatekey = updatekey +"\n"+ mapping.getKey();
+					
+					out = mapping.getValue();
+					x++; 
+					if ( x+1 == entrySetSortedByValue.size() )updateString.put(updatekey, updatevalue);
+				}
+				String oldContent = "";
+				String newContent = "";
+				
+				oldContent = new String(Files.readAllBytes(Paths.get("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\New folder\\Schema\\AcknowledgeSalesOrder_4.2_PSF_openapplications.org_oagis.xsd")));
+				
+				System.out.println(oldContent);
+//				BufferedReader reader = new BufferedReader(new FileReader(fileToBeModified));
+//				String line = reader.readLine();
+//				while (line != null)
+//				{
+//					oldContent = oldContent + line + System.lineSeparator();
+//					line = reader.readLine();
+//				}
+				System.out.println(updateString.size());
+				for (Map.Entry<String, String> set :
+					updateString.entrySet()) {
 
+					System.out.println(set.getKey()+"---->"+set.getValue());
+					String value = set.getValue();									
+					String key = set.getKey();
+					newContent = oldContent.replaceAll( value ,key);
+					
+					oldContent = newContent;
 
+				}
+				writer = new FileWriter(fileToBeModified);
+
+				writer.write(newContent);
 		}
 
 		catch (FileNotFoundException e) {
