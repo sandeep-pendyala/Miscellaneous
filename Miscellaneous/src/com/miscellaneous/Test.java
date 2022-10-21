@@ -2,10 +2,12 @@ package com.miscellaneous;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore.Entry;
@@ -14,6 +16,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,9 +35,12 @@ import java.util.Map;
 
 
 public class Test {
-
-	@SuppressWarnings("resource")
+	 @SuppressWarnings( "unchecked" )
+//	@SuppressWarnings("resource")
 	public static void main(String[] args) {
+
+		String oldContent = new String();
+		StringBuffer  newContent = new StringBuffer();
 		// TODO Auto-generated method stub
 		try {
 			//	File inputFile = new File("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\Schema\\AcknowledgeSalesOrder_2.4.xsd");
@@ -43,7 +50,7 @@ public class Test {
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(inputFile);
 			doc.getDocumentElement().normalize();
-			HashMap<String, String> codenames = new HashMap<String, String>();
+		 	HashMap<String, String> codenames = new HashMap<String, String>();
 			HashMap<String, String> updateString = new HashMap<String, String>();
 			////Get XPath expression
 			XPathFactory xpathfactory = XPathFactory.newInstance();
@@ -141,34 +148,44 @@ public class Test {
 					x++; 
 					if ( x+1 == entrySetSortedByValue.size() )updateString.put(updatekey, updatevalue);
 				}
-				String oldContent = "";
-				String newContent = "";
+			
 				
-				oldContent = new String(Files.readAllBytes(Paths.get("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\New folder\\Schema\\AcknowledgeSalesOrder_4.2_PSF_openapplications.org_oagis.xsd")));
-				
-				System.out.println(oldContent);
+				//oldContent = new String(Files.readAllBytes(Paths.get("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\New folder\\Schema\\AcknowledgeSalesOrder_4.2_PSF_openapplications.org_oagis.xsd")));
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(new FileInputStream(fileToBeModified)));
+				oldContent =  reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
+				System.out.println("beforechange---------->---------------------------->--------------------->");
+			System.out.println(oldContent);
 //				BufferedReader reader = new BufferedReader(new FileReader(fileToBeModified));
 //				String line = reader.readLine();
 //				while (line != null)
 //				{
-//					oldContent = oldContent + line + System.lineSeparator();
+//				
+//						oldContent.append(   line + System.lineSeparator());
+//					
 //					line = reader.readLine();
 //				}
 				System.out.println(updateString.size());
+				
+			 
 				for (Map.Entry<String, String> set :
 					updateString.entrySet()) {
 
 					System.out.println(set.getKey()+"---->"+set.getValue());
 					String value = set.getValue();									
 					String key = set.getKey();
-					newContent = oldContent.replaceAll( value ,key);
-					
-					oldContent = newContent;
+					oldContent = oldContent.replaceFirst( value ,  value + key  );
+									 
 
 				}
-				writer = new FileWriter(fileToBeModified);
-
-				writer.write(newContent);
+				System.out.println("afterchange---------->---------------------------->--------------------->");
+				System.out.println(oldContent);
+				
+				Files.write(Paths.get("C:\\Users\\cb8804\\OneDrive - SKF\\Desktop\\New folder (4)\\New folder\\Schema\\files.txt"), oldContent.getBytes());
+//				writer = new FileWriter(fileToBeModified);
+//
+//				writer.write(oldContent);
+//				
 		}
 
 		catch (FileNotFoundException e) {
